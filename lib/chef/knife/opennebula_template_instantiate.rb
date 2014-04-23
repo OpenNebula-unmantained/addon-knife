@@ -84,6 +84,13 @@ class Chef
         :description => "The user to create and add the provided public key to authorized_keys, default is 'root'",
         :default => "root"
         
+      option :ssh_key_name,
+        :short => "-S KEY",
+        :long => "--ssh-key KEY",
+        :description => "The AWS SSH key id",
+        :proc => Proc.new { |key| Chef::Config[:knife][:aws_ssh_key_id] = key }
+        
+        
       option :ssh_port,
         :short => "-p PORT",
         :long => "--ssh-port PORT",
@@ -152,7 +159,7 @@ class Chef
           exit 1
         end
 	@vm_hash = vir_mac.to_hash
-	puts ui.color("Server:", :green)
+	puts ui.color("\nServer:", :green)
         msg_pair("Name", @vm_hash['VM']['name'])
         msg_pair("IP", @vm_hash['VM']['TEMPLATE']['AWS_IP_ADDRESS'])
         
