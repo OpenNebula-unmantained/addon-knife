@@ -5,7 +5,7 @@ require 'chef/knife/opennebula_base'
 #require_relative 'opennebula_base'
 class Chef
   class Knife
-    class OpennebulaTemplateInstantiate < Knife
+    class OpennebulaServerCreate < Knife
 
       deps do
         require 'highline'
@@ -16,7 +16,7 @@ class Chef
       end
       include Knife::OpennebulaBase
 
-      banner "knife opennebula template instantiate OPTIONS"
+      banner "knife opennebula server create OPTIONS"
 
       option :vm_name,
         :short => "-n SERVER_NAME",
@@ -37,24 +37,7 @@ class Chef
         :boolean => true,
         :default => true
 
-      option :opennebula_username,
-        :short => "-A OPENNEBULA_USERNAME",
-        :long => "--username OPENNEBULA_USERNAME",
-        :description => "Opennebula user's name",
-        :proc => Proc.new { |user| Chef::Config[:knife][:opennebula_username] = user }
-
-      option :opennebula_passowrd,
-        :short => "-K OPENNEBULA_PASSWORD",
-        :long => "--password OPENNEBULA_PASSWORD",
-        :description => "Opennebula user's password",
-        :proc => Proc.new { |password| Chef::Config[:knife][:opennebula_password] = password }
-
-      option :opennebula_endpoint,
-        :short => "-e OPENNEBULA_ENDPOINT",
-        :long => "--endpoint OPENNEBULA_ENDPOIN",
-        :description => "Opennebula Endpoint",
-        :proc => Proc.new { |endpoint| Chef::Config[:knife][:opennebula_endpoint] = endpoint }
-
+      
       option :opennebula_flavor,
         :short => "-f FLAVOR",
         :long => "--flavor FLAVOR",

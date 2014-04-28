@@ -13,7 +13,7 @@ Gem::Specification.new do |s|
   s.summary     = %q{Knife Client for Opennebula}
   s.description = %q{Knife Client for Opennebula}
   #s.files         = `git ls-files`.split("\n")
-  s.files         = ["Gemfile","README.md", "lib/chef/opennebula/version.rb","lib/chef/knife/opennebula_base.rb", "lib/chef/knife/opennebula_template_list.rb", "lib/chef/knife/opennebula_template_instantiate.rb", "lib/chef/knife/opennebula_vm_list.rb" ]
+  s.files         = ["Gemfile","README.md", "lib/chef/opennebula/version.rb","lib/chef/knife/opennebula_base.rb", "lib/chef/knife/opennebula_template_list.rb", "lib/chef/knife/opennebula_server_create.rb", "lib/chef/knife/opennebula_server_list.rb", "lib/chef/knife/opennebula_server_delete.rb" ]
   #s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
   #s.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
   s.require_paths = ["lib"]
