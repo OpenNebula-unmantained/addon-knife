@@ -23,15 +23,20 @@ This plugin provides the following Knife subcommands. Specific command options c
 #### `knife opennebula template list`
 
 
-#### `knife opennebula vm list`
+#### `knife opennebula server list`
 
 
-#### `knife opennebula template instantiate`
+#### `knife opennebula server create`
+
+
+#### `knife opennebula server delete SERVER_NAME`
 
 eg:
 
-    knife opennebula vm list -A OPENNEBULA_USERNAEM -K OPENNEBULA_USER_PASSWORD -e http://my-opennebula.com:2633/RPC2
-
     knife opennebula template list -A OPENNEBULA_USERNAEM -K OPENNEBULA_USER_PASSWORD -e http://my-opennebula.com:2633/RPC2
-
-    knife opennebula template instantiate -A OPENNEBULA_USERNAEM -K OPENNEBULA_USER_PASSWORD -e http://my-opennebula.com:2633/RPC2 -t MY_TEMPLATE_NAME -i IDENTITY_FILE -x USER -r 'role[test]' -N TEST1 -n TEST1
+    
+    knife opennebula server create -A OPENNEBULA_USERNAEM -K OPENNEBULA_USER_PASSWORD -e http://my-opennebula.com:2633/RPC2 -t MY_TEMPLATE_NAME -i IDENTITY_FILE -x USER -r 'role[test]' -N TEST1 -n TEST1
+    
+    knife opennebula server list -A OPENNEBULA_USERNAEM -K OPENNEBULA_USER_PASSWORD -e http://my-opennebula.com:2633/RPC2
+    
+    knife opennebula server delete SERVER_NAME -A OPENNEBULA_USERNAEM -K OPENNEBULA_USER_PASSWORD -e http://my-opennebula.com:2633/RPC2 -P -N NODE_NAME
