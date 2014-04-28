@@ -10,6 +10,8 @@ class Chef
       deps do
         require 'highline'
         require 'chef/knife/bootstrap'
+        require 'net/ssh'
+        require 'net/ssh/multi'
         Chef::Knife.load_deps
       end
       include Knife::OpennebulaBase
