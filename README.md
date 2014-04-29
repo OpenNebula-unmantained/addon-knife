@@ -62,23 +62,31 @@ Configuration can be done either of any three ways.
 * `-K` or `--password` -> `OPENNEBULA_PASSWORD`
 * `-e` or `--endpoint` -> `OPENNEBULA_ENDPOINT`
 
-For more info get options by `--help` or `-h`
+Specific command options can be found by invoking the subcommand with a `--help` flag
 
 ## Usage
 
 This plugin provides the following Knife subcommands. Specific command options can be found by invoking the subcommand with a `--help` flag
 
 
-#### `knife opennebula template list`
+#### To list the virtual resource templates
+
+`knife opennebula template list`
 
 
-#### `knife opennebula server list`
+#### To list the virual machines
+
+`knife opennebula server list`
 
 
-#### `knife opennebula server create`
+#### To create a virtual machine by instantiating a template
+
+`knife opennebula server create`
 
 
-#### `knife opennebula server delete SERVER_NAME`
+#### To undeploy and delete a virtual machine
+
+`knife opennebula server delete SERVER_NAME`
 
 eg:
 
