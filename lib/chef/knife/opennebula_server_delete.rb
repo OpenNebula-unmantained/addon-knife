@@ -73,9 +73,11 @@ class Chef
           	if config[:purge]
               		if config[:chef_node_name]
               			thing_to_delete = config[:chef_node_name]
-              		end
               			destroy_item(Chef::Node, thing_to_delete, "node")
 			        destroy_item(Chef::ApiClient, thing_to_delete, "client")
+			else
+				ui.error("Please Provide Chef NODE_NAME in -N")
+			end
 		 else
                    ui.warn("Corresponding node and client for the #{@vm_name} server were not deleted and remain registered with the Chef Server")
 		end

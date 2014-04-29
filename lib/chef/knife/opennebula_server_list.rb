@@ -45,10 +45,10 @@ class Chef
           vm_list << vm_hash['VM']['NAME']
           vm_list << vm_hash['VM']['TEMPLATE']['MEMORY']
           vm_list << vm_hash['VM']['TEMPLATE']['CPU']
-          vm_list << vm_hash['VM']['TEMPLATE']['AWS_AVAILABILITY_ZONE']
-          vm_list << vm_hash['VM']['TEMPLATE']['AWS_INSTANCE_TYPE']
-          vm_list << vm_hash['VM']['TEMPLATE']['AWS_IP_ADDRESS']
-          vm_list << vm_hash['VM']['TEMPLATE']['AWS_KEY_NAME']
+          vm_list << vm_hash['VM']['TEMPLATE']['AWS_AVAILABILITY_ZONE'] if vm_hash['VM']['TEMPLATE'].has_key?('AWS_AVAILABILITY_ZONE')
+          vm_list << vm_hash['VM']['TEMPLATE']['AWS_INSTANCE_TYPE'] if vm_hash['VM']['TEMPLATE'].has_key?('AWS_INSTANCE_TYPE')
+          vm_list << vm_hash['VM']['TEMPLATE']['AWS_IP_ADDRESS'] if vm_hash['VM']['TEMPLATE'].has_key?('AWS_IP_ADDRESS')
+          vm_list << vm_hash['VM']['TEMPLATE']['AWS_KEY_NAME'] if vm_hash['VM']['TEMPLATE'].has_key?('AWS_KEY_NAME')
           vm_list <<  begin
             state = vm_hash['VM']['STATE']
             case state

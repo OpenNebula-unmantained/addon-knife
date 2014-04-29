@@ -43,10 +43,10 @@ class Chef
           temp_hash = temp.to_hash
           temp_list << temp_hash['VMTEMPLATE']['ID']
           temp_list << temp_hash['VMTEMPLATE']['NAME']
-          temp_list << temp_hash['VMTEMPLATE']['TEMPLATE']['EC2']['AMI']
-          temp_list << temp_hash['VMTEMPLATE']['TEMPLATE']['EC2']['INSTANCETYPE']
-          temp_list << temp_hash['VMTEMPLATE']['TEMPLATE']['EC2']['KEYPAIR']
-          temp_list << temp_hash['VMTEMPLATE']['TEMPLATE']['EC2']['SECURITYGROUPS']
+          temp_list << temp_hash['VMTEMPLATE']['TEMPLATE']['EC2']['AMI'] if temp_hash['VMTEMPLATE']['TEMPLATE'].has_key?('EC2')
+          temp_list << temp_hash['VMTEMPLATE']['TEMPLATE']['EC2']['INSTANCETYPE'] if temp_hash['VMTEMPLATE']['TEMPLATE'].has_key?('EC2')
+          temp_list << temp_hash['VMTEMPLATE']['TEMPLATE']['EC2']['KEYPAIR'] if temp_hash['VMTEMPLATE']['TEMPLATE'].has_key?('EC2')
+          temp_list << temp_hash['VMTEMPLATE']['TEMPLATE']['EC2']['SECURITYGROUPS'] if temp_hash['VMTEMPLATE']['TEMPLATE'].has_key?('EC2')
           temp_list << temp_hash['VMTEMPLATE']['TEMPLATE']['CPU']
           temp_list << temp_hash['VMTEMPLATE']['TEMPLATE']['MEMORY']
         end

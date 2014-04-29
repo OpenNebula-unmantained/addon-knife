@@ -138,6 +138,7 @@ class Chef
           exit 1
         end
         puts ui.color("Template Instantiated, and a Virtual Machine created with id #{vm_id}", :green)
+        puts ui.color("Fetching Virtual machine data from cloud", :magenta)
         vir_mac = virtual_machine("#{vm_id}")
         unless "#{vir_mac.class}" == "OpenNebula::VirtualMachine"
           ui.error("Some problem in Getting Virtual Machine")
@@ -164,28 +165,14 @@ class Chef
         end
         vm_pool.each do |vm|
           if "#{vm.id}" == "#{id}"
-           puts "#{ui.color("Fetching Virtual machine data from cloud .", :magenta)}"
-           flag = false
-           while !flag do
+          v_hash = vm.to_hash
+           if v_hash['VM']['TEMPLATE'].has_key?('AWS_IP_ADDRESS')
+           	@re_obj = vm
+           else
           	 sleep 1
           	 print "."
-          	 vm_po = VirtualMachinePool.new(client, -1)
-          	 rc = vm_po.info
-        	if OpenNebula.is_error?(rc)
-	          puts rc.message
-	          exit -1
-        	end
-          	 vm_po.each do |v|
-          	   if "#{v.id}" == "#{id}"
-          	   	v_hash = v.to_hash
-          	   	if v_hash['VM']['TEMPLATE'].has_key?('AWS_IP_ADDRESS')
-          	   		@re_obj = v
-          	   		flag = true
-          	   	end
-          	   end
-          	 end
+          	 virtual_machine("#{vm.id}")
            end
-          #return vm
           else
             ui.error("Virtual Machine Not found")
             exit 1
