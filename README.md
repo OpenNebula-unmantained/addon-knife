@@ -16,22 +16,25 @@ More info:
 
 ## Authors
 
-* Leader: Kishore Kumar (nkishore@megam.co.in)
-* Thomas Alrin (alrin@megam.co.in)
+* Leader: Thomas Alrin (alrin@megam.co.in)
+* Kishore Kumar (nkishore@megam.co.in)
 
 ## Compatibility
 
-This add-on is compatible with OpenNebula 4.2.
+This add-on is compatible with OpenNebula 4.4, 4.6.
+Tested extensively with 4.6 (EC2)
 
 ## Requirements
 
 ### Chef
 
-Chef server where the roles and clients resides.
+Hosted Chef 11.0.x (or) On Premises Chef (http://www.getchef.com/chef/choose-your-version/) configured with a client.
+
+[For more information about Chef](https://learnchef.opscode.com/get-started/)
 
 ## Installation
 
-To install the plugin you need to do the follwing:
+To install the plugin you need to do the following in your workstation:
 
 * `gem install chef`
 * `gem install opennebula`
@@ -41,7 +44,8 @@ To install the plugin you need to do the follwing:
 ## Configuration
 
 Configuration can be done either of any three ways.
-### Configuring the ENV variables
+
+### 1. Configuring the ENV variables
 
 * `export OPENNEBULA_USERNAME="MY_OPENNEBULA_USERNAME"`
 
@@ -50,14 +54,14 @@ Configuration can be done either of any three ways.
 * `export OPENNEBULA_ENDPOINT="MY_OPENNEBULA_ENDPOINT"`
 
 
-### Configuring knife.rb
+### 2. Configuring knife.rb
 * `knife[:opennebula_username] = "MY_OPENNEBULA_USERNAME"`
 
 * `knife[:opennebula_password] = "MY_OPENNEBULA_PASSWORD"`
 
 * `knife[:opennebula_endpoint] = "MY_OPENNEBULA_ENDPOINT"`
 
-### Configure while running commands by passing options
+### 3. Configure while running commands by passing options
 * `-A` or `--username` -> `OPENNEBULA_USERNAME`
 * `-K` or `--password` -> `OPENNEBULA_PASSWORD`
 * `-e` or `--endpoint` -> `OPENNEBULA_ENDPOINT`
@@ -90,11 +94,11 @@ This plugin provides the following Knife subcommands. Specific command options c
 
 eg:
 
-    knife opennebula template list -A OPENNEBULA_USERNAEM -K OPENNEBULA_USER_PASSWORD -e http://my-opennebula.com:2633/RPC2
+    knife opennebula template list -A OPENNEBULA_USERNAME -K OPENNEBULA_USER_PASSWORD -e http://my-opennebula.com:2633/RPC2
     
-    knife opennebula server create -A OPENNEBULA_USERNAEM -K OPENNEBULA_USER_PASSWORD -e http://my-opennebula.com:2633/RPC2 -t MY_TEMPLATE_NAME -i IDENTITY_FILE -x USER -r 'role[test]' -N TEST1 -n TEST1
+    knife opennebula server create -A OPENNEBULA_USERNAME -K OPENNEBULA_USER_PASSWORD -e http://my-opennebula.com:2633/RPC2 -t MY_TEMPLATE_NAME -i IDENTITY_FILE -x USER -r 'role[test]' -N TEST1 -n TEST1
     
-    knife opennebula server list -A OPENNEBULA_USERNAEM -K OPENNEBULA_USER_PASSWORD -e http://my-opennebula.com:2633/RPC2
+    knife opennebula server list -A OPENNEBULA_USERNAME -K OPENNEBULA_USER_PASSWORD -e http://my-opennebula.com:2633/RPC2
     
-    knife opennebula server delete SERVER_NAME -A OPENNEBULA_USERNAEM -K OPENNEBULA_USER_PASSWORD -e http://my-opennebula.com:2633/RPC2 -P -N NODE_NAME
+    knife opennebula server delete SERVER_NAME -A OPENNEBULA_USERNAME -K OPENNEBULA_USER_PASSWORD -e http://my-opennebula.com:2633/RPC2 -P -N NODE_NAME
 

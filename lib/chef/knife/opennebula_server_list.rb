@@ -29,6 +29,8 @@ class Chef
           exit -1
         end
 
+        # TO-DO: This is tailored for AWS, need to be fixed, just so it works for private/public
+
         vm_list = [
           ui.color('ID', :bold),
           ui.color('Name', :bold),

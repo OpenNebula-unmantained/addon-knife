@@ -37,7 +37,6 @@ class Chef
         :boolean => true,
         :default => true
 
-      
       option :opennebula_flavor,
         :short => "-f FLAVOR",
         :long => "--flavor FLAVOR",
@@ -68,14 +67,13 @@ class Chef
         :long => "--ssh-user USERNAME",
         :description => "The user to create and add the provided public key to authorized_keys, default is 'root'",
         :default => "root"
-        
+
       option :ssh_key_name,
         :short => "-S KEY",
         :long => "--ssh-key KEY",
         :description => "The AWS SSH key id",
         :proc => Proc.new { |key| Chef::Config[:knife][:aws_ssh_key_id] = key }
-        
-        
+
       option :ssh_port,
         :short => "-p PORT",
         :long => "--ssh-port PORT",
@@ -102,19 +100,19 @@ class Chef
         :long => "--node-name NAME",
         :description => "The Chef node name for your new node default is the name of the server.",
         :proc => Proc.new { |t| Chef::Config[:knife][:chef_node_name] = t }
-        
+
       option :template_file,
         :long => "--template-file TEMPLATE",
         :description => "Full path to location of template to use",
         :proc => Proc.new { |t| Chef::Config[:knife][:template_file] = t },
         :default => false
-        
+
       option :host_key_verify,
         :long => "--[no-]host-key-verify",
         :description => "Verify host key, enabled by default.",
         :boolean => true,
         :default => true
-        
+
       option :identity_file,
         :short => "-i IDENTITY_FILE",
         :long => "--identity-file IDENTITY_FILE",
@@ -144,14 +142,14 @@ class Chef
           ui.error("Some problem in Getting Virtual Machine")
           exit 1
         end
-	@vm_hash = vir_mac.to_hash
-	puts ui.color("\nServer:", :green)
+        @vm_hash = vir_mac.to_hash
+        puts ui.color("\nServer:", :green)
         msg_pair("Name", @vm_hash['VM']['name'])
         msg_pair("IP", @vm_hash['VM']['TEMPLATE']['AWS_IP_ADDRESS'])
-        
-	bootstrap()
-	
-	puts ui.color("Server:", :green)
+
+        bootstrap()
+
+        puts ui.color("Server:", :green)
         msg_pair("Name", @vm_hash['VM']['name'])
         msg_pair("IP", @vm_hash['VM']['TEMPLATE']['AWS_IP_ADDRESS'])
       end
@@ -165,14 +163,15 @@ class Chef
         end
         vm_pool.each do |vm|
           if "#{vm.id}" == "#{id}"
-          v_hash = vm.to_hash
-           if v_hash['VM']['TEMPLATE'].has_key?('AWS_IP_ADDRESS')
-           	@re_obj = vm
-           else
-          	 sleep 1
-          	 print "."
-          	 virtual_machine("#{vm.id}")
-           end
+            v_hash = vm.to_hash
+            ## To do, this needs to fixed. Get help from Opennebula dev team.
+            if v_hash['VM']['TEMPLATE'].has_key?('AWS_IP_ADDRESS')
+              @re_obj = vm
+            else
+              sleep 1
+              print "."
+              virtual_machine("#{vm.id}")
+            end
           else
             ui.error("Virtual Machine Not found")
             exit 1
@@ -191,8 +190,8 @@ class Chef
         end
         temp_pool.each do |temp|
           if "#{temp.name}" == "#{name}"
-          	puts ui.color("Template Found.", :green)
-          	return temp
+            puts ui.color("Template Found.", :green)
+          return temp
           else
             ui.error("Template Not found")
             exit 1
@@ -214,7 +213,7 @@ class Chef
         bootstrap.config[:use_sudo] = true unless bootstrap.config[:ssh_user] == 'root'
         bootstrap.run
       end
-      
+
     end
   end
 end

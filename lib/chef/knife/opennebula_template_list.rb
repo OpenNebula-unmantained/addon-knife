@@ -29,6 +29,7 @@ class Chef
           exit -1
         end
 
+        # This needs to be fixed as this is tailored for AWS.        
         temp_list = [
           ui.color('ID', :bold),
           ui.color('Name', :bold),
