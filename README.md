@@ -43,15 +43,19 @@ To install the plugin you need to do the follwing:
 Configuration can be done either of any three ways.
 ### Configuring the ENV variables
 
-`export OPENNEBULA_USERNAME="MY_OPENNEBULA_USERNAME"`
-`export OPENNEBULA_PASSWORD="MY_OPENNEBULA_PASSWORD"`
-`export OPENNEBULA_ENDPOINT="MY_OPENNEBULA_ENDPOINT"`
+* `export OPENNEBULA_USERNAME="MY_OPENNEBULA_USERNAME"`
+
+* `export OPENNEBULA_PASSWORD="MY_OPENNEBULA_PASSWORD"`
+
+* `export OPENNEBULA_ENDPOINT="MY_OPENNEBULA_ENDPOINT"`
 
 
 ### Configuring knife.rb
-`knife[:opennebula_username] = "MY_OPENNEBULA_USERNAME"`
-`knife[:opennebula_password] = "MY_OPENNEBULA_PASSWORD"`
-`knife[:opennebula_endpoint] = "MY_OPENNEBULA_ENDPOINT"`
+* `knife[:opennebula_username] = "MY_OPENNEBULA_USERNAME"`
+
+* `knife[:opennebula_password] = "MY_OPENNEBULA_PASSWORD"`
+
+* `knife[:opennebula_endpoint] = "MY_OPENNEBULA_ENDPOINT"`
 
 ### Configure while running commands by passing options
 * `-A` or `--username` -> `OPENNEBULA_USERNAME`
