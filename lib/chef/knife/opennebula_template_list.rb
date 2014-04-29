@@ -33,10 +33,10 @@ class Chef
         temp_list = [
           ui.color('ID', :bold),
           ui.color('Name', :bold),
-          ui.color('AMI', :bold),
-          ui.color('INSTANCE_TYPE', :bold),
-          ui.color('KEY_PAIR', :bold),
-          ui.color('SECURITY_GROUP', :bold),
+          #ui.color('AMI', :bold),
+          #ui.color('INSTANCE_TYPE', :bold),
+          #ui.color('KEY_PAIR', :bold),
+          #ui.color('SECURITY_GROUP', :bold),
           ui.color('CPU', :bold),
           ui.color('MEMORY', :bold)]
 
@@ -44,16 +44,16 @@ class Chef
           temp_hash = temp.to_hash
           temp_list << temp_hash['VMTEMPLATE']['ID']
           temp_list << temp_hash['VMTEMPLATE']['NAME']
-          temp_list << temp_hash['VMTEMPLATE']['TEMPLATE']['EC2']['AMI'] if temp_hash['VMTEMPLATE']['TEMPLATE'].has_key?('EC2')
-          temp_list << temp_hash['VMTEMPLATE']['TEMPLATE']['EC2']['INSTANCETYPE'] if temp_hash['VMTEMPLATE']['TEMPLATE'].has_key?('EC2')
-          temp_list << temp_hash['VMTEMPLATE']['TEMPLATE']['EC2']['KEYPAIR'] if temp_hash['VMTEMPLATE']['TEMPLATE'].has_key?('EC2')
-          temp_list << temp_hash['VMTEMPLATE']['TEMPLATE']['EC2']['SECURITYGROUPS'] if temp_hash['VMTEMPLATE']['TEMPLATE'].has_key?('EC2')
+          #temp_list << temp_hash['VMTEMPLATE']['TEMPLATE']['EC2']['AMI'] if temp_hash['VMTEMPLATE']['TEMPLATE'].has_key?('EC2')
+          #temp_list << temp_hash['VMTEMPLATE']['TEMPLATE']['EC2']['INSTANCETYPE'] if temp_hash['VMTEMPLATE']['TEMPLATE'].has_key?('EC2')
+          #temp_list << temp_hash['VMTEMPLATE']['TEMPLATE']['EC2']['KEYPAIR'] if temp_hash['VMTEMPLATE']['TEMPLATE'].has_key?('EC2')
+          #temp_list << temp_hash['VMTEMPLATE']['TEMPLATE']['EC2']['SECURITYGROUPS'] if temp_hash['VMTEMPLATE']['TEMPLATE'].has_key?('EC2')
           temp_list << temp_hash['VMTEMPLATE']['TEMPLATE']['CPU']
           temp_list << temp_hash['VMTEMPLATE']['TEMPLATE']['MEMORY']
         end
 
         puts ui.color("VM Templates Listed Successfully", :green)
-        puts ui.list(temp_list, :uneven_columns_across, 8)
+        puts ui.list(temp_list, :uneven_columns_across, 4)
       end
 
     end
