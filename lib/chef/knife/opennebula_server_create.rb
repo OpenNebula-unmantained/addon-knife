@@ -126,11 +126,11 @@ class Chef
         validate!
         temp = template("#{locate_config_value(:opennebula_template)}")
         unless "#{temp.class}" == "OpenNebula::Template"
-          ui.error("Template Not found")
+          ui.error("Template Not found #{temp.class}")
           exit 1
         end
         puts ui.color("Instantiating Template......", :green)
-        vm_id = temp.instantiate(name = "#{locate_config_value(:vm_name)}", hold = false, template = "")
+        vm_id = temp.instantiate(name = "#{locate_config_value(:chef_node_name)}", hold = false, template = "")
         unless "#{vm_id.class}" == "Fixnum"
           ui.error("Some problem in instantiating template")
           exit 1
@@ -143,15 +143,20 @@ class Chef
           exit 1
         end
         @vm_hash = vir_mac.to_hash
+	if @vm_hash['VM']['TEMPLATE'].has_key?('AWS_IP_ADDRESS')
+		@ip_add = @vm_hash['VM']['TEMPLATE']['AWS_IP_ADDRESS']
+	else
+		@ip_add = @vm_hash['VM']['USER_TEMPLATE']['IP_ADDRESS']
+	end
         puts ui.color("\nServer:", :green)
         msg_pair("Name", @vm_hash['VM']['name'])
-        msg_pair("IP", @vm_hash['VM']['TEMPLATE']['AWS_IP_ADDRESS'])
+        msg_pair("IP", @ip_add)
 
         bootstrap()
 
         puts ui.color("Server:", :green)
         msg_pair("Name", @vm_hash['VM']['name'])
-        msg_pair("IP", @vm_hash['VM']['TEMPLATE']['AWS_IP_ADDRESS'])
+        msg_pair("IP", @ip_add)
       end
 
       def virtual_machine(id)
@@ -165,16 +170,13 @@ class Chef
           if "#{vm.id}" == "#{id}"
             v_hash = vm.to_hash
             ## To do, this needs to fixed. Get help from Opennebula dev team.
-            if v_hash['VM']['TEMPLATE'].has_key?('AWS_IP_ADDRESS')
+            if v_hash['VM']['TEMPLATE'].has_key?('AWS_IP_ADDRESS') || v_hash['VM']['USER_TEMPLATE'].has_key?('IP_ADDRESS')
               @re_obj = vm
             else
               sleep 1
               print "."
               virtual_machine("#{vm.id}")
             end
-          else
-            ui.error("Virtual Machine Not found")
-            exit 1
           end
         end
         @re_obj
@@ -192,16 +194,13 @@ class Chef
           if "#{temp.name}" == "#{name}"
             puts ui.color("Template Found.", :green)
           return temp
-          else
-            ui.error("Template Not found")
-            exit 1
           end
         end
       end
 
       def bootstrap
         bootstrap = Chef::Knife::Bootstrap.new
-        bootstrap.name_args = @vm_hash['VM']['TEMPLATE']['AWS_IP_ADDRESS']
+        bootstrap.name_args = @ip_add
         bootstrap.config[:run_list] = locate_config_value(:run_list)
         bootstrap.config[:ssh_user] = locate_config_value(:ssh_user)
         bootstrap.config[:ssh_port] = locate_config_value(:ssh_port)

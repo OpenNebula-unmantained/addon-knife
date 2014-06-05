@@ -82,9 +82,6 @@ class Chef
             else
               ui.warn("Corresponding node and client for the #{@vm_name} server were not deleted and remain registered with the Chef Server")
             end
-          else
-            ui.error("no vm found in name #{@vm_name}")
-            exit -1
           end
         end
 
