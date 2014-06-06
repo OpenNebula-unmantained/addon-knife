@@ -96,9 +96,14 @@ eg:
 
     knife opennebula template list -A OPENNEBULA_USERNAME -K OPENNEBULA_USER_PASSWORD -e http://my-opennebula.com:2633/RPC2
     
-    knife opennebula server create -A OPENNEBULA_USERNAME -K OPENNEBULA_USER_PASSWORD -e http://my-opennebula.com:2633/RPC2 -t MY_TEMPLATE_NAME -i IDENTITY_FILE -x USER -r 'role[test]' -N TEST1 -n TEST1
+    knife opennebula server create -A OPENNEBULA_USERNAME -K OPENNEBULA_USER_PASSWORD -e http://my-opennebula.com:2633/RPC2 -t MY_TEMPLATE_NAME -i IDENTITY_FILE -x USER -r 'role[test]' -N TEST1
     
     knife opennebula server list -A OPENNEBULA_USERNAME -K OPENNEBULA_USER_PASSWORD -e http://my-opennebula.com:2633/RPC2
     
     knife opennebula server delete SERVER_NAME -A OPENNEBULA_USERNAME -K OPENNEBULA_USER_PASSWORD -e http://my-opennebula.com:2633/RPC2 -P -N NODE_NAME
+
+
+To launch ubuntu-precise template on opennebula host http://canvpn.megam.co.in:2633/RPC2 using private key canvpn.key and role recipe[apt] with name tom
+
+    knife opennebula server create -A oneadmin -K ephamnilnik5 -e http://canvpn.megam.co.in:2633/RPC2 -t Ubuntu-precise -i ~/canvpn.key -x root -r 'recipe[apt]' -N tom
 

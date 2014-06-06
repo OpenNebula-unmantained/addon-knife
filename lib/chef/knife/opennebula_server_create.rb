@@ -18,22 +18,16 @@ class Chef
 
       banner "knife opennebula server create OPTIONS"
 
-      option :vm_name,
-        :short => "-n SERVER_NAME",
-        :long => "--name SERVER_NAME",
-        :description => "name for the newly created VM"
-      #:required => true
-
       option :opennebula_template,
         :short => "-t TEMPLATE_NAME",
         :long => "--template-name TEMPLATE_NAME",
-        :description => "name for the VM TEMPLATE",
+        :description => "name for the OpenNebula VM TEMPLATE",
         :required => true,
         :proc => Proc.new { |template| Chef::Config[:knife][:opennebula_template] = template}
 
       option :bootstrap,
         :long => "--[no-]bootstrap",
-        :description => "Bootstrap the server with knife bootstrap default true",
+        :description => "Bootstrap the server with knife bootstrap, default true",
         :boolean => true,
         :default => true
 
@@ -41,7 +35,7 @@ class Chef
       option :ssh_user,
         :short => "-x USERNAME",
         :long => "--ssh-user USERNAME",
-        :description => "The autherized user to ssh into the instance, default is 'root'",
+        :description => "The authorized user to ssh into the instance, default is 'root'",
         :default => "root"
 
 
@@ -69,12 +63,13 @@ class Chef
       option :chef_node_name,
         :short => "-N NAME",
         :long => "--node-name NAME",
-        :description => "The Chef node name for your new node default is the name of the server.",
+        :description => "The name for chef node and your vm",
+        :required => true,
         :proc => Proc.new { |t| Chef::Config[:knife][:chef_node_name] = t }
 
       option :template_file,
         :long => "--template-file TEMPLATE",
-        :description => "Full path to location of template to use, default false",
+        :description => "Full path to location of bootstrap template to use, default false",
         :proc => Proc.new { |t| Chef::Config[:knife][:template_file] = t },
         :default => false
 
@@ -94,35 +89,46 @@ class Chef
       end
 
       def run
+#Validate opennebula credentials
         validate!
+#Get the template details
         temp = template("#{locate_config_value(:opennebula_template)}")
         unless "#{temp.class}" == "OpenNebula::Template"
           ui.error("Template Not found #{temp.class}")
           exit 1
         end
         puts ui.color("Instantiating Template......", :green)
+#Instantiating a template
         vm_id = temp.instantiate(name = "#{locate_config_value(:chef_node_name)}", hold = false, template = "")
+#Opennebula error message
+	if OpenNebula.is_error?(vm_id)
+	  ui.error("Some problem in instantiating template")
+	  ui.error("#{vm_id.message}")
+          exit -1
+        end
         unless "#{vm_id.class}" == "Fixnum"
           ui.error("Some problem in instantiating template")
           exit 1
         end
-        puts ui.color("Template Instantiated, and a Virtual Machine created with id #{vm_id}", :green)
-        puts ui.color("Fetching Virtual machine data from cloud", :magenta)
+        puts ui.color("Template Instantiated, and a VM created with id #{vm_id}", :green)
+        puts ui.color("Fetching ip address of the VM ", :magenta)
+#Get the VM details
         vir_mac = virtual_machine("#{vm_id}")
         unless "#{vir_mac.class}" == "OpenNebula::VirtualMachine"
           ui.error("Some problem in Getting Virtual Machine")
           exit 1
         end
         @vm_hash = vir_mac.to_hash
+#VM can have more ip addresses. Priority to get vm ip is AWS_IP_ADDRESS, MEGAM_IP_ADDRESS and PRIVATE_IP_ADDRESS.
 	if @vm_hash['VM']['TEMPLATE'].has_key?('AWS_IP_ADDRESS')
 		@ip_add = @vm_hash['VM']['TEMPLATE']['AWS_IP_ADDRESS']
 	else
-		@ip_add = @vm_hash['VM']['USER_TEMPLATE']['IP_ADDRESS']
+		@ip_add = @vm_hash['VM']['USER_TEMPLATE']['MEGAM_IP_ADDRESS']
 	end
         puts ui.color("\nServer:", :green)
         msg_pair("Name", @vm_hash['VM']['name'])
         msg_pair("IP", @ip_add)
-
+#Bootstrap VM
         bootstrap()
 
         puts ui.color("Server:", :green)
@@ -140,8 +146,9 @@ class Chef
         vm_pool.each do |vm|
           if "#{vm.id}" == "#{id}"
             v_hash = vm.to_hash
-            ## To do, this needs to fixed. Get help from Opennebula dev team.
-            if v_hash['VM']['TEMPLATE'].has_key?('AWS_IP_ADDRESS') || v_hash['VM']['USER_TEMPLATE'].has_key?('IP_ADDRESS')
+#Sleep untill get the VM's Ip address from either vm_hash['VM']['TEMPLATE']['AWS_IP_ADDRESS'] or vm_hash['VM']['USER_TEMPLATE']['MEGAM_IP_ADDRESS'].
+#vm_hash['VM']['USER_TEMPLATE']['MEGAM_IP_ADDRESS'] can be set by onegate. In our case, we get that ip from vpn.
+            if v_hash['VM']['TEMPLATE'].has_key?('AWS_IP_ADDRESS') || v_hash['VM']['USER_TEMPLATE'].has_key?('MEGAM_IP_ADDRESS')
               @re_obj = vm
             else
               sleep 1
@@ -154,6 +161,7 @@ class Chef
       end
 
       def template(name)
+#Searching user's vm template
         puts ui.color("Locating Template......", :green)
         temp_pool = TemplatePool.new(client, -1)
         rc = temp_pool.info
