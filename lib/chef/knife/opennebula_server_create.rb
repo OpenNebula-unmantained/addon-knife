@@ -21,7 +21,7 @@ class Chef
       option :vm_name,
         :short => "-n SERVER_NAME",
         :long => "--name SERVER_NAME",
-        :description => "name for the newly created Server"
+        :description => "name for the newly created VM"
       #:required => true
 
       option :opennebula_template,
@@ -33,51 +33,22 @@ class Chef
 
       option :bootstrap,
         :long => "--[no-]bootstrap",
-        :description => "Bootstrap the server with knife bootstrap",
+        :description => "Bootstrap the server with knife bootstrap default true",
         :boolean => true,
         :default => true
 
-      option :opennebula_flavor,
-        :short => "-f FLAVOR",
-        :long => "--flavor FLAVOR",
-        :description => "the amount of vCores and RAM that your server will get",
-        #:required => true,
-        :proc => Proc.new { |flavor| Chef::Config[:knife][:opennebula_flavor] = flavor }
-
-      option :opennebula_storage,
-        :long => "--storage SIZE",
-        :description => "Specify the size (in GB) of the system drive. Valid size is 10-250",
-        :default => '10',
-        :proc => Proc.new { |size| Chef::Config[:knife][:opennebula_storage] = size }
-
-      option :opennebula_ssd,
-        :long => "--ssd 1",
-        :description => "If this parameter is set to 1, the system drive will be located on a SSD drive",
-        :proc => Proc.new { |set| Chef::Config[:knife][:opennebula_ssd] = set }
-
-      option :opennebula_image,
-        :short => "-I IMAGE_ID",
-        :long => "--image IMAGE_ID",
-        :description => "This image_id will define operating system and pre-installed software",
-        #:required => true,
-        :proc => Proc.new { |i| Chef::Config[:knife][:opennebula_image] = i }
 
       option :ssh_user,
         :short => "-x USERNAME",
         :long => "--ssh-user USERNAME",
-        :description => "The user to create and add the provided public key to authorized_keys, default is 'root'",
+        :description => "The autherized user to ssh into the instance, default is 'root'",
         :default => "root"
 
-      option :ssh_key_name,
-        :short => "-S KEY",
-        :long => "--ssh-key KEY",
-        :description => "The AWS SSH key id",
-        :proc => Proc.new { |key| Chef::Config[:knife][:aws_ssh_key_id] = key }
 
       option :ssh_port,
         :short => "-p PORT",
         :long => "--ssh-port PORT",
-        :description => "The ssh port",
+        :description => "The ssh port, default is 22",
         :default => "22",
         :proc => Proc.new { |key| Chef::Config[:knife][:ssh_port] = key }
 
@@ -103,7 +74,7 @@ class Chef
 
       option :template_file,
         :long => "--template-file TEMPLATE",
-        :description => "Full path to location of template to use",
+        :description => "Full path to location of template to use, default false",
         :proc => Proc.new { |t| Chef::Config[:knife][:template_file] = t },
         :default => false
 

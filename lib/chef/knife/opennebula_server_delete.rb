@@ -27,9 +27,6 @@ class Chef
         :long => "--node-name NAME",
         :description => "The name of the node and client to delete, if it differs from the server name.  Only has meaning when used with the '--purge' option."
 
-      option :identity_file,
-        :long => "--identity-file IDENTITY_FILE",
-        :description => "Megam systems usage. It does nothing."
 
       def h
         @highline ||= HighLine.new
