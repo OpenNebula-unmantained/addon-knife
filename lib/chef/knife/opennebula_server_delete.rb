@@ -65,7 +65,6 @@ class Chef
             msg_pair("Availability Zone", @vm_hash['VM']['TEMPLATE']['AWS_AVAILABILITY_ZONE'])
             msg_pair("Public IP Address", @vm_hash['VM']['TEMPLATE']['AWS_IP_ADDRESS'])
             confirm("Do you really want to delete this server")
-            vm.undeploy(hard = false)
             vm.delete(recreate = false)
             ui.warn("Deleted server #{@vm_hash['VM']['NAME']}")
             if config[:purge]
