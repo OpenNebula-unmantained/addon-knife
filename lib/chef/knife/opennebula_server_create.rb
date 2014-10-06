@@ -79,6 +79,13 @@ class Chef
         :boolean => true,
         :default => true
 
+      option :json_attributes,
+        :short => "-j JSON",
+        :long => "--json-attributes JSON",
+        :description => "A JSON string to be added to the first run of chef-client",
+        :proc => lambda { |o| JSON.parse(o) }
+
+
       option :identity_file,
         :short => "-i IDENTITY_FILE",
         :long => "--identity-file IDENTITY_FILE",
@@ -186,6 +193,7 @@ class Chef
         bootstrap.config[:identity_file] = locate_config_value(:identity_file)
         bootstrap.config[:distro] = locate_config_value(:distro)
         bootstrap.config[:host_key_verify] = config[:host_key_verify]
+        bootstrap.config[:first_boot_attributes] = locate_config_value(:json_attributes) || {}
         bootstrap.config[:template_file] = locate_config_value(:template_file)
         bootstrap.config[:chef_node_name] = locate_config_value(:chef_node_name) || @vm_hash['VM']['name']
         bootstrap.config[:use_sudo] = true unless bootstrap.config[:ssh_user] == 'root'
