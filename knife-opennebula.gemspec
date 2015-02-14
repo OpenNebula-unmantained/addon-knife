@@ -12,9 +12,12 @@ Gem::Specification.new do |s|
   s.extra_rdoc_files = ["README.md" ]
   s.summary     = %q{Knife plugin to manage OpenNebula VMs}
   s.description = %q{Knife plugin to manage OpenNebula VMs}
-  s.files         = ["Gemfile","README.md", "lib/chef/opennebula/version.rb","lib/chef/knife/opennebula_base.rb", "lib/chef/knife/opennebula_template_list.rb", "lib/chef/knife/opennebula_server_create.rb", "lib/chef/knife/opennebula_server_list.rb", "lib/chef/knife/opennebula_server_delete.rb" ]
+  s.files         = ["Gemfile","README.md", "lib/chef/opennebula/version.rb","lib/chef/knife/opennebula_base.rb", "lib/chef/knife/opennebula_template_list.rb", "lib/chef/knife/opennebula_server_create.rb", "lib/chef/knife/opennebula_server_delete.rb", "lib/chef/knife/opennebula_server_list.rb" ]
   s.require_paths = ["lib"]
+
+  s.add_dependency "fog", ">= 1.26.0"
+  s.add_dependency "chef", ">= 11.0"
   s.add_runtime_dependency 'opennebula'
-  s.add_runtime_dependency 'chef'
   s.add_runtime_dependency 'highline'
+
 end
