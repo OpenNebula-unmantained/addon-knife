@@ -37,7 +37,6 @@ Hosted Chef 11.0.x (or) On Premises Chef (http://www.getchef.com/chef/choose-you
 To install the plugin you need to do the following in your workstation:
 
 * `gem install chef`
-* `gem install opennebula`
 * `gem install knife-opennebula`
 
 
