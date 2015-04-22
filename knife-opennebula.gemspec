@@ -6,7 +6,7 @@ Gem::Specification.new do |s|
   s.name        = "knife-opennebula"
   s.version     = Chef::Opennebula::VERSION
   s.authors     = ["Kishorekumar Neelamegam, Thomas Alrin"]
-  s.email       = ["nkishore@megam.co.in","alrin@megam.co.in"]
+  s.email       = ["nkishore@megam.io","thomasalrin@megam.io"]
   s.homepage    = "http://github.com/opennebula/addons-knife"
   s.license = "Apache V2"
   s.extra_rdoc_files = ["README.md" ]

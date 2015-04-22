@@ -46,6 +46,12 @@ class Chef
         :boolean => true,
         :default => true
 
+#It assumes that chef-client already installed in the server (ie) Image has installed with chef-client
+#Chef-client install command
+      option :bootstrap_install_command,
+        :long => "--bootstrap_install_command",
+        :description => "Bootstrap the server with the given chef-client install command",
+        :default => "pwd"
 
       option :ssh_user,
         :short => "-x USERNAME",
@@ -172,6 +178,7 @@ ser = server(vm.id)
         bootstrap.config[:first_boot_attributes] = locate_config_value(:json_attributes) || {}
         bootstrap.config[:template_file] = locate_config_value(:template_file)
         bootstrap.config[:chef_node_name] = locate_config_value(:chef_node_name)
+        bootstrap.config[:bootstrap_install_command] = locate_config_value(:bootstrap_install_command)
         bootstrap.config[:use_sudo] = true unless bootstrap.config[:ssh_user] == 'root'
         bootstrap.run
       end
