@@ -16,13 +16,13 @@ More info:
 
 ## Authors
 
-* Leader: Thomas Alrin (alrin@megam.co.in)
-* Kishore Kumar (nkishore@megam.co.in)
+* Leader: Thomas Alrin (thomasalrin@megam.io)
+* Kishore Kumar (nkishore@megam.io)
 
 ## Compatibility
 
-This add-on is compatible with OpenNebula 4.4, 4.6.
-Tested extensively with 4.6 (EC2)
+This add-on is compatible with OpenNebula 4.4, 4.6, 4.12
+
 
 ## Requirements
 
