@@ -1,18 +1,36 @@
-require 'chef/knife'
-require 'chef/json_compat'
+#
+# Author:: Matt Ray (<matt@getchef.com>)
+# Copyright:: Copyright (c) 2012-2014 Chef Software, Inc.
+# License:: Apache License, Version 2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+require 'chef/node'
+require 'chef/api_client'
 require 'chef/knife/opennebula_base'
 
-#require_relative 'opennebula_base'
 class Chef
   class Knife
-    class OpennebulaServerDelete < Knife
+     class OpennebulaServerDelete < Knife
 
       deps do
         require 'highline'
         Chef::Knife.load_deps
       end
-      include Knife::OpennebulaBase
 
+      include Knife::OpennebulaBase
+  
       banner "knife opennebula server delete VM_NAME (OPTIONS)"
 
       option :purge,
@@ -28,10 +46,6 @@ class Chef
         :description => "The name of the node and client to delete, if it differs from the server name.  Only has meaning when used with the '--purge' option."
 
 
-      def h
-        @highline ||= HighLine.new
-      end
-
       def destroy_item(klass, name, type_name)
         begin
           object = klass.load(name)
@@ -42,45 +56,51 @@ class Chef
         end
       end
 
-      def run
-        validate!
-        if @name_args.empty?
-          ui.error("no vm name is specific")
-          exit -1
-        else
-          @vm_name = @name_args[0]
-        end
-        vm_pool = VirtualMachinePool.new(client, -1)
-        rc = vm_pool.info
-        if OpenNebula.is_error?(rc)
-          puts rc.message
-          exit -1
-        end
+      def h
+        @highline ||= HighLine.new
+      end
 
-        vm_pool.each do |vm|
-          if "#{vm.name}" == "#{@vm_name}"
-            @vm_hash = vm.to_hash
-            msg_pair("VM ID", @vm_hash['VM']['ID'])
-            msg_pair("VM Name", @vm_hash['VM']['NAME'])
-            msg_pair("Availability Zone", @vm_hash['VM']['TEMPLATE']['AWS_AVAILABILITY_ZONE'])
-            msg_pair("Public IP Address", @vm_hash['VM']['TEMPLATE']['AWS_IP_ADDRESS'])
+
+      def run
+
+        validate!
+
+        @name_args.each do |instance_id|
+          begin
+
+        #Fetch instance_id by name of the server =====> MEGAM SYSTEMS CODE START
+        connection.servers.all.each do |ser|
+        	if ser.name.to_s == "#{instance_id}"
+        		instance_id = ser.id
+		end
+	end
+	#=====> MEGAM SYSTEMS CODE END
+
+            server = connection.servers.get(instance_id)
+
+            msg_pair("VM ID", server.id)
+            msg_pair("VM Name", server.name)
+            msg_pair("IP Address", server.ip)
+
+            puts "\n"
             confirm("Do you really want to delete this server")
-            vm.delete(recreate = false)
-            ui.warn("Deleted server #{@vm_hash['VM']['NAME']}")
+
+            server.destroy
+
+            ui.warn("Deleted server #{server.id}")
+
             if config[:purge]
-              if config[:chef_node_name]
-                thing_to_delete = config[:chef_node_name]
-                destroy_item(Chef::Node, thing_to_delete, "node")
-                destroy_item(Chef::ApiClient, thing_to_delete, "client")
-              else
-                ui.error("Please Provide Chef NODE_NAME in -N")
-              end
+              thing_to_delete = config[:chef_node_name] || instance_id
+              destroy_item(Chef::Node, thing_to_delete, "node")
+              destroy_item(Chef::ApiClient, thing_to_delete, "client")
             else
-              ui.warn("Corresponding node and client for the #{@vm_name} server were not deleted and remain registered with the Chef Server")
+              ui.warn("Corresponding node and client for the #{instance_id} server were not deleted and remain registered with the Chef Server")
             end
+
+          rescue NoMethodError
+            ui.error("Could not locate server '#{instance_id}'.")
           end
         end
-
       end
 
     end

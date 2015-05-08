@@ -1,61 +1,51 @@
+#
+# Author:: Matt Ray (<matt@getchef.com>)
+# Copyright:: Copyright (c) 2012-2014 Chef Software, Inc.
+# License:: Apache License, Version 2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
 require 'chef/knife'
 require 'chef/json_compat'
 require 'chef/knife/opennebula_base'
 
-#require_relative 'opennebula_base'
 class Chef
   class Knife
     class OpennebulaTemplateList < Knife
 
-      deps do
-        require 'highline'
-        Chef::Knife.load_deps
-      end
       include Knife::OpennebulaBase
 
-      banner "knife opennebula template list OPTIONS"
-
-      def h
-        @highline ||= HighLine.new
-      end
+      banner "knife opennebula template list (options)"
 
       def run
+
         validate!
 
-        temp_pool = TemplatePool.new(client, -1)
-        rc = temp_pool.info
-        if OpenNebula.is_error?(rc)
-          puts rc.message
-          exit -1
-        end
-
-        # This needs to be fixed as this is tailored for AWS.        
-        temp_list = [
+        flavor_list = [
           ui.color('ID', :bold),
           ui.color('Name', :bold),
-          #ui.color('AMI', :bold),
-          #ui.color('INSTANCE_TYPE', :bold),
-          #ui.color('KEY_PAIR', :bold),
-          #ui.color('SECURITY_GROUP', :bold),
           ui.color('CPU', :bold),
           ui.color('MEMORY', :bold)]
 
-        temp_pool.each do |temp|
-          temp_hash = temp.to_hash
-          temp_list << temp_hash['VMTEMPLATE']['ID']
-          temp_list << temp_hash['VMTEMPLATE']['NAME']
-          #temp_list << temp_hash['VMTEMPLATE']['TEMPLATE']['EC2']['AMI'] if temp_hash['VMTEMPLATE']['TEMPLATE'].has_key?('EC2')
-          #temp_list << temp_hash['VMTEMPLATE']['TEMPLATE']['EC2']['INSTANCETYPE'] if temp_hash['VMTEMPLATE']['TEMPLATE'].has_key?('EC2')
-          #temp_list << temp_hash['VMTEMPLATE']['TEMPLATE']['EC2']['KEYPAIR'] if temp_hash['VMTEMPLATE']['TEMPLATE'].has_key?('EC2')
-          #temp_list << temp_hash['VMTEMPLATE']['TEMPLATE']['EC2']['SECURITYGROUPS'] if temp_hash['VMTEMPLATE']['TEMPLATE'].has_key?('EC2')
-          temp_list << temp_hash['VMTEMPLATE']['TEMPLATE']['CPU']
-          temp_list << temp_hash['VMTEMPLATE']['TEMPLATE']['MEMORY']
+        connection.flavors.all.each do |flavor|
+          flavor_list << flavor.id
+          flavor_list << flavor.name
+          flavor_list << flavor.cpu.to_s
+          flavor_list << "#{flavor.memory.to_s} MB"
         end
-
-        puts ui.color("VM Templates Listed Successfully", :green)
-        puts ui.list(temp_list, :uneven_columns_across, 4)
+        puts ui.list(flavor_list, :uneven_columns_across, 4)
       end
-
     end
   end
 end

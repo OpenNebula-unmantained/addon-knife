@@ -1,21 +1,36 @@
+#
+# Author:: Matt Ray (<matt@getchef.com>)
+# Copyright:: Copyright (c) 2012-2014 Chef Software, Inc.
+# License:: Apache License, Version 2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
 require 'chef/knife'
 require 'chef/json_compat'
 require 'chef/knife/opennebula_base'
 
-#require_relative 'opennebula_base'
 class Chef
   class Knife
-    class OpennebulaServerCreate < Knife
+     class OpennebulaServerCreate < Knife
 
       deps do
         require 'highline'
         require 'chef/knife/bootstrap'
-        require 'net/ssh'
-        require 'net/ssh/multi'
-        Chef::Knife.load_deps
+	Chef::Knife::Bootstrap.load_deps
       end
       include Knife::OpennebulaBase
-
+  
       banner "knife opennebula server create OPTIONS"
 
       option :opennebula_template,
@@ -31,6 +46,12 @@ class Chef
         :boolean => true,
         :default => true
 
+#It assumes that chef-client already installed in the server (ie) Image has installed with chef-client
+#Chef-client install command
+      option :bootstrap_install_command,
+        :long => "--bootstrap_install_command",
+        :description => "Bootstrap the server with the given chef-client install command",
+        :default => "pwd"
 
       option :ssh_user,
         :short => "-x USERNAME",
@@ -79,6 +100,13 @@ class Chef
         :boolean => true,
         :default => true
 
+      option :json_attributes,
+        :short => "-j JSON",
+        :long => "--json-attributes JSON",
+        :description => "A JSON string to be added to the first run of chef-client",
+        :proc => lambda { |o| JSON.parse(o) }
+
+
       option :identity_file,
         :short => "-i IDENTITY_FILE",
         :long => "--identity-file IDENTITY_FILE",
@@ -89,108 +117,112 @@ class Chef
       end
 
       def run
-#Validate opennebula credentials
         validate!
-#Get the template details
-        temp = template("#{locate_config_value(:opennebula_template)}")
-        unless "#{temp.class}" == "OpenNebula::Template"
-          ui.error("Template Not found #{temp.class}")
-          exit 1
-        end
-        puts ui.color("Instantiating Template......", :green)
-#Instantiating a template
-        vm_id = temp.instantiate(name = "#{locate_config_value(:chef_node_name)}", hold = false, template = "")
-#Opennebula error message
-	if OpenNebula.is_error?(vm_id)
-	  ui.error("Some problem in instantiating template")
-	  ui.error("#{vm_id.message}")
-          exit -1
-        end
-        unless "#{vm_id.class}" == "Fixnum"
-          ui.error("Some problem in instantiating template")
-          exit 1
-        end
-        puts ui.color("Template Instantiated, and a VM created with id #{vm_id}", :green)
-        puts ui.color("Fetching ip address of the VM ", :magenta)
-#Get the VM details
-        vir_mac = virtual_machine("#{vm_id}")
-        unless "#{vir_mac.class}" == "OpenNebula::VirtualMachine"
-          ui.error("Some problem in Getting Virtual Machine")
-          exit 1
-        end
-        @vm_hash = vir_mac.to_hash
-#VM can have more ip addresses. Priority to get vm ip is AWS_IP_ADDRESS, MEGAM_IP_ADDRESS and PRIVATE_IP_ADDRESS.
-	if @vm_hash['VM']['TEMPLATE'].has_key?('AWS_IP_ADDRESS')
-		@ip_add = @vm_hash['VM']['TEMPLATE']['AWS_IP_ADDRESS']
-	else
-		@ip_add = @vm_hash['VM']['USER_TEMPLATE']['MEGAM_IP_ADDRESS']
-	end
+	validate_flavor!
+
+	newvm = connection.servers.new
+
+newvm.flavor = connection.flavors.get(flavor.id)
+
+# set the name of the vm
+newvm.name = locate_config_value(:chef_node_name)
+
+newvm.flavor.vcpu = 1
+
+vm = newvm.save
+	
+ser = server(vm.id)
         puts ui.color("\nServer:", :green)
-        msg_pair("Name", @vm_hash['VM']['name'])
-        msg_pair("IP", @ip_add)
+        msg_pair("VM Name", ser.name)
+        msg_pair("VM ID", ser.id)
+        msg_pair("IP", ser.ip)
+	msg_pair("Template", flavor.name)
+
+        print "\n#{ui.color("Waiting for server", :magenta)}"
+
+        # wait for it to be ready to do stuff
+        ser.wait_for { print "."; ready? }
+
+        puts("\n")
+        # hack to ensure the nodes have had time to spin up
+        print(".")
+        sleep 30
+        print(".")
+
+        print(".") until tcp_test_ssh(ser.ip) {
+          sleep @initial_sleep_delay ||= 10
+          puts("done")
+        }
+
 #Bootstrap VM
-        bootstrap()
+        bootstrap(ser.ip)
 
         puts ui.color("Server:", :green)
-        msg_pair("Name", @vm_hash['VM']['name'])
-        msg_pair("IP", @ip_add)
+        msg_pair("Name", ser.name)
+        msg_pair("IP", ser.ip)
+        msg_pair("Environment", config[:environment] || '_default')
+        msg_pair("Run List", config[:run_list].join(', '))
+        msg_pair("JSON Attributes",config[:json_attributes]) unless !config[:json_attributes] || config[:json_attributes].empty?
       end
 
-      def virtual_machine(id)
-        vm_pool = VirtualMachinePool.new(client, -1)
-        rc = vm_pool.info
-        if OpenNebula.is_error?(rc)
-          puts rc.message
-          exit -1
-        end
-        vm_pool.each do |vm|
-          if "#{vm.id}" == "#{id}"
-            v_hash = vm.to_hash
-#Sleep untill get the VM's Ip address from either vm_hash['VM']['TEMPLATE']['AWS_IP_ADDRESS'] or vm_hash['VM']['USER_TEMPLATE']['MEGAM_IP_ADDRESS'].
-#vm_hash['VM']['USER_TEMPLATE']['MEGAM_IP_ADDRESS'] can be set by onegate. In our case, we get that ip from vpn.
-            if v_hash['VM']['TEMPLATE'].has_key?('AWS_IP_ADDRESS') || v_hash['VM']['USER_TEMPLATE'].has_key?('MEGAM_IP_ADDRESS')
-              @re_obj = vm
-            else
-              sleep 1
-              print "."
-              virtual_machine("#{vm.id}")
-            end
-          end
-        end
-        @re_obj
-      end
 
-      def template(name)
-#Searching user's vm template
-        puts ui.color("Locating Template......", :green)
-        temp_pool = TemplatePool.new(client, -1)
-        rc = temp_pool.info
-        if OpenNebula.is_error?(rc)
-          puts rc.message
-          exit -1
-        end
-        temp_pool.each do |temp|
-          if "#{temp.name}" == "#{name}"
-            puts ui.color("Template Found.", :green)
-          return temp
-          end
-        end
-      end
-
-      def bootstrap
+      def bootstrap(ip)
         bootstrap = Chef::Knife::Bootstrap.new
-        bootstrap.name_args = @ip_add
+        bootstrap.name_args = ip
         bootstrap.config[:run_list] = locate_config_value(:run_list)
         bootstrap.config[:ssh_user] = locate_config_value(:ssh_user)
         bootstrap.config[:ssh_port] = locate_config_value(:ssh_port)
         bootstrap.config[:identity_file] = locate_config_value(:identity_file)
         bootstrap.config[:distro] = locate_config_value(:distro)
         bootstrap.config[:host_key_verify] = config[:host_key_verify]
+        bootstrap.config[:first_boot_attributes] = locate_config_value(:json_attributes) || {}
         bootstrap.config[:template_file] = locate_config_value(:template_file)
-        bootstrap.config[:chef_node_name] = locate_config_value(:chef_node_name) || @vm_hash['VM']['name']
+        bootstrap.config[:chef_node_name] = locate_config_value(:chef_node_name)
+        bootstrap.config[:bootstrap_install_command] = locate_config_value(:bootstrap_install_command)
         bootstrap.config[:use_sudo] = true unless bootstrap.config[:ssh_user] == 'root'
         bootstrap.run
       end
+
+      def tcp_test_ssh(hostname)
+        tcp_socket = TCPSocket.new(hostname, 22)
+        readable = IO.select([tcp_socket], nil, nil, 5)
+        if readable
+          Chef::Log.debug("sshd accepting connections on #{hostname}, banner is #{tcp_socket.gets}")
+          yield
+          true
+        else
+          false
+        end
+      rescue Errno::ETIMEDOUT
+        false
+      rescue Errno::EPERM
+        false
+      rescue Errno::ECONNREFUSED
+        sleep 2
+        false
+      rescue Errno::EHOSTUNREACH
+        sleep 2
+        false
+      ensure
+        tcp_socket && tcp_socket.close
+      end
+
+      def flavor
+        @flavor ||= connection.flavors.get_by_name(locate_config_value(:opennebula_template))
+	@flavor[0]
+      end
+
+      def server(id)
+        @server ||= connection.servers.get(id)
+      end
+
+      def validate_flavor!
+        if flavor.nil?
+          ui.error("You have not provided a valid Template NAme. Please note the options for this value are -t or --template-name.")
+          exit 1
+        end
+      end
+
 
     end
   end
