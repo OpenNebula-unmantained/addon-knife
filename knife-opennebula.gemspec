@@ -7,7 +7,7 @@ Gem::Specification.new do |s|
   s.version     = Chef::Opennebula::VERSION
   s.authors     = ["Kishorekumar Neelamegam, Thomas Alrin"]
   s.email       = ["nkishore@megam.io","thomasalrin@megam.io"]
-  s.homepage    = "http://github.com/opennebula/addons-knife"
+  s.homepage    = "http://github.com/opennebula/addon-knife"
   s.license = "Apache V2"
   s.extra_rdoc_files = ["README.md" ]
   s.summary     = %q{Knife plugin to manage OpenNebula VMs}
