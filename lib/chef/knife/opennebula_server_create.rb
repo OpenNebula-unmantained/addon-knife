@@ -48,10 +48,12 @@ class Chef
 
 #It assumes that chef-client already installed in the server (ie) Image has installed with chef-client
 #Chef-client install command
+=begin
       option :bootstrap_install_command,
         :long => "--bootstrap_install_command",
         :description => "Bootstrap the server with the given chef-client install command",
         :default => "pwd"
+=end
 
       option :ssh_user,
         :short => "-x USERNAME",
