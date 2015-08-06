@@ -69,6 +69,25 @@ class Chef
         :default => "22",
         :proc => Proc.new { |key| Chef::Config[:knife][:ssh_port] = key }
 
+      option :cpu,
+        :long => "--cpu NO_OF_CORES",
+        :description => "Number of cores(cpu) required for the VM, default is 1",
+        :default => "1",
+        :proc => Proc.new { |key| Chef::Config[:knife][:cpu] = key }
+
+      option :vcpu,
+        :long => "--vcpu No of vcpus",
+        :description => "Number of virtual cpu required for the VM, default is 1",
+        :default => "1",
+        :proc => Proc.new { |key| Chef::Config[:knife][:vcpu] = key }
+
+      option :memory,
+        :short => "-R RAM",
+        :long => "--ram RAM",
+        :description => "Amout of ram required for the VM (in MB)",
+        :default => "1024",
+        :proc => Proc.new { |key| Chef::Config[:knife][:ram] = key }
+
       option :run_list,
         :short => "-r RUN_LIST",
         :long => "--run-list RUN_LIST",
@@ -129,7 +148,9 @@ newvm.flavor = connection.flavors.get(flavor.id)
 # set the name of the vm
 newvm.name = locate_config_value(:chef_node_name)
 
-newvm.flavor.vcpu = 1
+newvm.flavor.vcpu = locate_config_value(:vcpu)
+newvm.flavor.memory = locate_config_value(:memory)
+newvm.flavor.cpu = locate_config_value(:cpu)
 
 vm = newvm.save
 	
@@ -137,6 +158,10 @@ ser = server(vm.id)
         puts ui.color("\nServer:", :green)
         msg_pair("VM Name", ser.name)
         msg_pair("VM ID", ser.id)
+        msg_pair("IP", ser.ip)
+        msg_pair("CPU", locate_config_value(:cpu))
+        msg_pair("VCPU", locate_config_value(:vcpu))
+        msg_pair("RAM", locate_config_value(:ram))
         msg_pair("IP", ser.ip)
 	msg_pair("Template", flavor.name)
 
@@ -162,6 +187,9 @@ ser = server(vm.id)
         puts ui.color("Server:", :green)
         msg_pair("Name", ser.name)
         msg_pair("IP", ser.ip)
+        msg_pair("CPU", locate_config_value(:cpu))
+        msg_pair("VCPU", locate_config_value(:vcpu))
+        msg_pair("RAM", locate_config_value(:ram))
         msg_pair("Environment", config[:environment] || '_default')
         msg_pair("Run List", config[:run_list].join(', '))
         msg_pair("JSON Attributes",config[:json_attributes]) unless !config[:json_attributes] || config[:json_attributes].empty?
